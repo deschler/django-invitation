@@ -72,6 +72,9 @@ class InvitationKey(models.Model):
                                   related_name='invitations_sent')
     registrant = models.ForeignKey(User, null=True, blank=True,
                                   related_name='invitations_used')
+    email = models.EmailField(
+        _('Email'), blank=True,
+        help_text=_('Stores the email address the invitation has been send to.'))
 
     objects = InvitationKeyManager()
 
@@ -129,6 +132,11 @@ class InvitationKey(models.Model):
                                      'site': current_site })
 
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+        # Store the email the invitation has been send to, so it can be picked up
+        # by a registration backend later.
+        self.email = email
+        self.save()
 
 
 class InvitationUser(models.Model):
